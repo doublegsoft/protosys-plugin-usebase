@@ -1,0 +1,466 @@
+@name(label='工作流定义', singular='workflow_definition', plural='workflow_definitions')
+@persistence(name='tn_wfm_wfdef', text='工作流定义表')
+@entity
+@widgets(
+  table='name',
+  form='name'
+)
+workflow_definition<
+
+  @name(label='工作流定义标识')
+  @persistence(name='wfdefid', query='=')
+  id!!: long,
+
+  @name(label='工作流定义编码')
+  @persistence(name='wfdefcd', query='%%')
+  code!+: string(32),
+
+  @name(label='工作流定义名称')
+  @persistence(name='wfdefnm', query='%%')
+  name!: name,
+
+  @name(label='工作流定义类型')
+  @persistence(name='wfdeftyp', query='%%')
+  type: string(64),
+
+  @name(label='工作流关联标识')
+  @persistence(name='refid')
+  @reference(value='id', name='reference')
+  reference_id: string(64),
+
+  @name(label='工作流关联类型')
+  @persistence(name='reftyp')
+  @reference(value='type', name='reference')
+  reference_type: string(64),
+
+  @persistence(name='nt')
+  @name(label='说明')
+  note: string(1000),
+
+  @persistence(name='dgrm')
+  @name(label='图例')
+  diagram: text,
+
+  @persistence(name='modid', text='修改者标识')
+  @reference(value='id', name='modifier')
+  modifier_id: string(64),
+
+  @persistence(name='modtyp', text='修改者类型')
+  @reference(value='type', name='modifier')
+  modifier_type: string(64),
+
+  @persistence(name='sta', text='系统状态')
+  state: state,
+
+  @persistence(name='lmt', text='最近修改时间')
+  last_modified_time: now,
+
+  @name(label='工作流定义名称')
+  workflow_action_connections: &workflow_action_connection(workflow_definition)[]
+>
+
+@name(label='工作流操作', singular='workflow_action', plural='workflow_actions')
+@persistence(name='tn_wfm_wfact', text='工作流操作表')
+@entity
+workflow_action<
+
+  @persistence(name='wfactid', text='工作流操作标识', query='=')
+  id!!: long,
+
+  @name(label='工作流操作名称')
+  @persistence(name='wfactnm', query='%%')
+  name: name,
+
+  @name(label='工作流处理过程类型', query='=')
+  @persistence(name='wfacttyp')
+  type: string(16),
+
+  @name(label='参与角色名称', query='=')
+  @persistence(name='rlenm')
+  role_name: string(100),
+
+  @name(label='处理类型', query='[]')
+  @persistence(name='optyp')
+  operation_type: enum[PROC: 处理, COND: 判断],
+
+  @name(label='动态类型', query='[]')
+  @persistence(name='dyntyp')
+  dynamic_type: enum[PARA: 并行执行, SEQU: 顺序执行],
+
+  @name(label='工作流节点关联标识', note='暂时不用')
+  @persistence(name='refid')
+  @reference(value='id', name='reference')
+  reference_id: string(64),
+
+  @name(label='工作流节点关联类型')
+  @persistence(name='reftyp')
+  @reference(value='type', name='reference')
+  reference_type: string(64),
+
+  @name(label='参与角色标识')
+  @persistence(name='rleid')
+  @reference(value='id', name='role')
+  role_id: string(64),
+
+  @name(label='参与角色类型')
+  @persistence(name='rletyp')
+  @reference(value='type', name='role')
+  role_type: string(64),
+
+  @name(label='接受任务者标识')
+  @persistence(name='acptrid', query='=')
+  @reference(value='id', name='acceptor')
+  acceptor_id: string(128),
+
+  @name(label='接受任务者类型')
+  @persistence(name='acptrtyp', query='=')
+  @reference(value='type', name='acceptor')
+  acceptor_type: string(128),
+
+  @name(label='获取接收任务者的脚本')
+  @persistence(name='acptrgtr')
+  acceptor_getter: text,
+
+  @name(label='完成期限', uint='天')
+  @persistence(name='dur', query='<>')
+  duration: integer,
+
+  @name(label='工作流处理过程入口')
+  @persistence(name='pcrent')
+  procedure_entry: string(1000),
+
+  @name(label='是否必须')
+  @persistence(name='reqd')
+  required: bool,
+
+  @comment(text='可选节点', text='O标识可选,*标识动态多个')
+  @persistence(name='optl')
+  optional: string(16),
+
+  @name(label='自定义状态值', format='UR:待审核')
+  @persistence(name='stsval')
+  status_value: string(36),
+
+  @persistence(name='opt', text='其他设置项')
+  options: json
+>
+
+@name(label='工作流操作节点连接信息', singular='workflow_action_connection', plural='workflow_action_connections')
+@persistence(name='tv_wfm_wfactconn', text='工作流操作节点连接信息')
+@value
+workflow_action_connection<
+
+  @comment(text='工作流标识')
+  @persistence(name='wfdefid', query='=')
+  workflow_definition!!: &workflow_definition(id),
+
+  @comment(text='工作流当前动作')
+  @persistence(name='curtactid', query='=')
+  current_action!!: &workflow_action(id),
+
+  @comment(text='触发下一个节点的条件条件')
+  @persistence(name='trigcond')
+  triggering_condition: string(400),
+
+  @comment(text='工作流前置动作')
+  @persistence(name='prevactid')
+  previous_action!!: &workflow_action(id),
+
+  @comment(text='工作流后续动作')
+  @persistence(name='nxtactid')
+  next_action!!: &workflow_action(id),
+
+  @comment(text='工作流退回到某一步的动作')
+  @persistence(name='rxactid')
+  rollback_action: &workflow_action(id),
+
+  @comment(text='可选节点', text='1标识单一,*标识多个')
+  @persistence(name='optl')
+  optional: string(16)
+>
+
+@name(label='工作流实例', singular='workflow_instance', plural='workflow_instances')
+@persistence(name='tn_wfm_wfinst', text='工作流实例表')
+@entity
+@widgets(
+  table='name+workflow_definition+(start_date+completion_date+status)|实例状态+(@view+@remove)|操作'
+)
+workflow_instance<
+
+  @name(label='工作流实例标识')
+  @persistence(name='wfinstid', query='=;[]workflow_instance_ids')
+  id!!: long,
+
+  @name(label='工作流实例名称')
+  @persistence(name='wfinstnm', query='%%')
+  name!: name,
+
+  @name(label='工作流标识')
+  @persistence(name='wfdefid')
+  workflow_definition!: &workflow_definition(id),
+
+  @name(label='工作流实例关联标识')
+  @persistence(name='refid')
+  @reference(value='id', name='reference')
+  reference_id!: string(64),
+
+  @name(label='工作流实例关联类型')
+  @persistence(name='reftyp')
+  @reference(value='type', name='reference')
+  reference_type!: string(64),
+
+  @name(label='业务状态值')
+  @persistence(name='stsval')
+  status_value: string(16),
+
+  @name(label='工作流实例状态')
+  @persistence(name='sts', query='=;[]statuses', note='In Progress, Under Review, Approval, Skipped')
+  status! = 'IP': enum[IP: 处理中, UR: 待审核, CL: 关闭, OP: 打开, AP: 已审核, PD: 等待, SK: 跳过],
+
+  @name(label='开始时间')
+  @persistence(name='stdt', query='<>')
+  start_date: datetime,
+
+  @name(label='完成时间')
+  @persistence(name='compldt', query='<>')
+  completion_date: datetime,
+
+  @persistence(name='modid', text='修改者标识')
+  @reference(value='id', name='modifier')
+  modifier_id: string(64),
+
+  @persistence(name='modtyp', text='修改者类型')
+  @reference(value='type', name='modifier')
+  modifier_type: string(64),
+
+  @persistence(name='sta', text='系统状态')
+  state: state,
+
+  @persistence(name='lmt', text='最近修改时间')
+  last_modified_time: now,
+
+  @name(label='工作流实例所有操作', singular='workflow_action_connection_instance')
+  workflow_action_connection_instances: &workflow_action_connection_instance(workflow_instance)[]
+>
+
+@name(label='工作流实例操作', singular='workflow_action_instance', plural='workflow_action_instances')
+@persistence(name='tn_wfm_wfactinst', tex='工作流实例操作表')
+@entity
+workflow_action_instance<
+
+  @persistence(name='wfactinstid', text='工作流实例操作标识')
+  id!!: long,
+
+  @name(label='工作流操作标识')
+  @persistence(name='wfinstid')
+  workflow_instance!: &workflow_instance(id),
+
+  @name(label='工作流操作标识')
+  @persistence(name='wfactid')
+  workflow_action!: &workflow_action(id),
+
+  @name(label='源头工作流实例')
+  @persistence(name='srcid')
+  source: &workflow_action_instance(id),
+
+  @name(label='工作流实例操作名称')
+  @persistence(name='wfactinstnm')
+  name!: name,
+
+  @name(label='参与角色名称', query='=')
+  @persistence(name='rlenm')
+  role_name: string(100),
+
+  @name(label='工作流节点实例关联标识')
+  @persistence(name='refid')
+  reference_id!: string(64),
+
+  @name(label='工作流节点实例关联类型')
+  @persistence(name='reftyp')
+  reference_type!: string(64),
+
+  @name(label='工作流处理过程类型', query='[]')
+  @persistence(name='optyp')
+  operation_type!: enum[PROC: 处理, COND: 判断, SKIP: 跳过, NOTI: 通知],
+
+  @name(label='完成期限', uint='天')
+  @persistence(name='dur', query='<>')
+  duration: integer,
+
+  @name(label='工作流处理过程入口')
+  @persistence(name='pcrent')
+  procedure_entry: string(1000),
+
+  @name(label='工作流处理过程入口参数')
+  @persistence(name='pcrparam')
+  procedure_parameters: json,
+
+  @name(label='是否必须')
+  @persistence(name='reqd')
+  required: bool,
+
+  @comment(text='可选节点', text='O标识可选,*标识动态多个')
+  @persistence(name='optl')
+  optional: string(16),
+
+  @name(label='开始时间')
+  @persistence(name='stdt', query='<>')
+  start_date: datetime,
+
+  @name(label='结束时间')
+  @persistence(name='compldt', query='<>')
+  completion_date: datetime,
+
+  @name(label='实际完成者标识')
+  @persistence(name='dorid', query='=')
+  @reference(value='id', name='doer')
+  doer_id: string(64),
+
+  @name(label='实际完成者')
+  @persistence(name='dortyp', query='=')
+  @reference(value='type', name='doer')
+  doer_type: string(128),
+
+  @name(label='工作流实例操作结果')
+  @persistence(name='rslt')
+  result: json,
+
+  @name(label='业务状态值')
+  @persistence(name='stsval', query='[]')
+  status_value: string(16),
+
+  @name(label='工作流实例状态')
+  @persistence(name='sts', query='[]')
+  status! = 'TA': enum[IV: 无效, TA: 待接受, RD: 已知晓, IP: 处理中, RJ: 拒绝, IG: 忽略, CO: 完成],
+
+  @persistence(name='opt', text='其他设置项')
+  options: json,
+
+  @persistence(name='lmt')
+  @name(label='最近修改时间')
+  last_modified_time: now
+>
+
+@name(label='工作流实例操作关联', singular='workflow_action_connection_instance', plural='workflow_action_connection_instances')
+@comment(text='工作流实例操作关联')
+@persistence(name='tv_wfm_wfactconninst', text='工作流实例操作关联表')
+@value
+workflow_action_connection_instance<
+
+  @name(label='工作流实例标识')
+  @persistence(name='wfinstid')
+  workflow_instance!!: &workflow_instance(id),
+
+  @name(label='工作流实例当前动作')
+  @persistence(name='curtactinstid')
+  current_action_instance!!: &workflow_action_instance(id),
+
+  @name(label='触发下一个节点的条件')
+  @persistence(name='trigrslt')
+  triggered_result: string(400),
+
+  @name(label='工作流实例前置动作')
+  @persistence(name='prevactinstid')
+  previous_action_instance!!: &workflow_action_instance(id),
+
+  @name(label='工作流实例后续动作')
+  @persistence(name='nxtactinstid')
+  next_action_instance!!: &workflow_action_instance(id),
+
+  @name(label='工作流实例回滚动作')
+  @persistence(name='rxactinstid')
+  rollback_action_instance: &workflow_action_instance(id),
+
+  @comment(text='可选节点', text='O标识可选,*标识动态多个')
+  @persistence(name='optl')
+  optional: string(16),
+
+  @persistence(name='lmt')
+  @name(label='最近修改时间')
+  last_modified_time: now
+>
+
+@name(label='工作流代办事项', singular='workflow_action_todo', plural='workflow_action_todoes')
+@persistence(name='tn_wfm_wfacttd', text='工作流代办事项表')
+@entity
+workflow_action_todo<
+
+  @persistence(name='wfacttdid', text='工作流代办事项标识')
+  id!!: long,
+
+  @persistence(name='wfinstid', text='工作流实例标识')
+  workflow_instance: &workflow_instance(id),
+
+  @persistence(name='wfactinstid', text='工作流节点实例标识')
+  workflow_action_instance: &workflow_action_instance(id),
+
+  @persistence(name='refid', text='业务关联标识')
+  @reference(value='id', name='reference')
+  reference_id!: string(64),
+
+  @persistence(name='reftyp', text='业务关联类型')
+  @reference(value='type', name='reference')
+  reference_type!: string(64),
+
+  @persistence(name='oprid', text='操作者关联标识')
+  @reference(value='id', name='operator')
+  operator_id!: string(64),
+
+  @persistence(name='oprtyp', text='操作者关联类型')
+  @reference(value='type', name='operator')
+  operator_type!: string(64),
+
+  @persistence(name='cont')
+  @name(label='操作内容')
+  content: json,
+
+  @persistence(name='lmt')
+  @name(label='最近修改时间')
+  last_modified_time: now
+>
+
+@name(label='工作流日志', singular='workflow_action_journal', plural='workflow_action_journals')
+@persistence(name='tn_wfm_wfactjnl', text='工作流日志表')
+@entity
+workflow_action_journal<
+
+  @persistence(name='wfactjnlid', text='工作流日志标识')
+  id!!: long,
+
+  @persistence(name='wfinstid', text='工作流实例')
+  workflow_instance!: &workflow_instance(id),
+
+  @persistence(name='wfactinstid', text='工作流操作实例')
+  workflow_action_instance!: &workflow_action_instance(id),
+
+  @persistence(name='prevactid', text='上一个工作流操作实例')
+  previous_action: &workflow_action_instance(id),
+
+  @persistence(name='refid', text='业务关联标识')
+  @reference(value='id', name='reference')
+  reference_id!: string(64),
+
+  @persistence(name='reftyp', text='业务关联类型')
+  @reference(value='type', name='reference')
+  reference_type!: string(64),
+
+  @persistence(name='oprid', text='操作者关联标识')
+  @reference(value='id', name='operator')
+  operator_id!: string(64),
+
+  @persistence(name='oprtyp', text='操作者关联类型')
+  @reference(value='type', name='operator')
+  operator_type!: string(64),
+
+  @persistence(name='sts')
+  @name(label='业务状态', note='来源于工作流操作中的业务状态')
+  status: string(16),
+
+  @persistence(name='rslt')
+  @name(label='操作结果')
+  result: json,
+
+  @persistence(name='lmt')
+  @name(label='最近修改时间')
+  last_modified_time: now
+>

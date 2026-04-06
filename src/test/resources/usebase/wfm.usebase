@@ -1,0 +1,14 @@
+@instantiate({workflow_definition: id!}, {workflow_instance: reference_id, reference_type}):{workflow_instance: id}
+|&| wfdef = {workflow_definition}#(id = id)
+|&| wfactconns = [workflow_action_connection]#(workflow_definition = id, previous_action = 0)
+|&| wfacts = [workflow_action]#(id = wfactconns.current_action)
+|:| wfinst = {workflow_instance: status = 'ST'}&wfdef
+|:| wfactInsts = [{workflow_action_instance}]&wfacts
+|:| wfactconninsts = [{workflow_action_connection_instance: current_action_instance = wfactInsts.id, workflow_instance = wfinst.id
+    }]&wfactconns <current_action = workflow_action> wfactInsts
+|+| wfinst
+|+| wfactconninsts
+|+| wfactInsts
+// 如何找到workflow的第一个节点
+// |=| {workflow_action_instance: status = 'CP'}#(workflow_action)
+|.| wfinst

@@ -25,8 +25,8 @@ import io.doublegsoft.modelbase.Modelbase;
 import io.doublegsoft.typebase.Typebase;
 import io.doublegsoft.usebase.Usebase;
 
-import io.doublegsoft.usebase.aggregate.AggregateBuilder;
-import io.doublegsoft.usebase.association.AssociationBuilder;
+//import io.doublegsoft.usebase.aggregate.AggregateBuilder;
+//import io.doublegsoft.usebase.association.AssociationBuilder;
 import io.doublegsoft.usebase.modelbase.ModelbaseWriter;
 import io.doublegsoft.usebase.projection.ProjectionBuilder;
 import org.apache.commons.cli.CommandLine;
@@ -150,8 +150,8 @@ public class UsebasePlugin extends FileSystemTemplateBasedPlugin {
 
     app.setModel(dataModel);
     globals.set("usecases", usecases);
-    globals.set("aggregateBuilder", new AggregateBuilder(dataModel));
-    globals.set("associationBuilder", new AssociationBuilder(dataModel));
+//    globals.set("aggregateBuilder", new AggregateBuilder(dataModel));
+//    globals.set("associationBuilder", new AssociationBuilder(dataModel));
 
     NamingConvention nc = globals.get("globalNamingConvention");
     List<String> templatePaths = getTemplateRelativePaths(templateRoot);
@@ -263,7 +263,7 @@ public class UsebasePlugin extends FileSystemTemplateBasedPlugin {
       rowObjs.add(rowObj);
     }
     StringWriter sw = new StringWriter();
-    ModelbaseWriter writer = new ModelbaseWriter(sw);
+    ModelbaseWriter writer = new ModelbaseWriter(sw, dataModel);
     for (UsecaseDefinition usecase : usecases) {
       if (usecase != null) {
         writer.write(usecase.getParameterizedObject());

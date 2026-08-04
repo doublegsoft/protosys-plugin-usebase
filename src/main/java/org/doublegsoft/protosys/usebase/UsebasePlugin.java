@@ -1,4 +1,4 @@
-package org.doublegsoft.prototype.usebase;
+package org.doublegsoft.protosys.usebase;
 
 import com.doublegsoft.jcommons.lang.HashObject;
 import com.doublegsoft.jcommons.lang.StringHolder;

@@ -1,6 +1,5 @@
-package org.doublegsoft.prototype.usebase;
+package org.doublegsoft.protosys.usebase;
 
-import io.doublegsoft.usebase.Usebase;
 import org.junit.Test;
 
 import java.io.File;

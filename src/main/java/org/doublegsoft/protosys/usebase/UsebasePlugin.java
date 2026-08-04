@@ -282,6 +282,8 @@ public class UsebasePlugin extends FileSystemTemplateBasedPlugin {
     }
     ModelDefinition usebaseDataModel = modelbase.parse(sw.toString());
     globalVars.set("usecases", usecases);
+    globalVars.set("model", dataModel);
+    globalVars.set("dataModel", dataModel);
 
     for (ObjectDefinition obj : dataModel.getObjects()) {
       /*!

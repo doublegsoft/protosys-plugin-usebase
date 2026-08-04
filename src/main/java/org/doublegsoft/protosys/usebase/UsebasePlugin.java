@@ -9,6 +9,7 @@ import com.doublegsoft.jcommons.metamodel.UsecaseDefinition;
 import com.doublegsoft.jcommons.programming.NamingConvention;
 import com.doublegsoft.jcommons.programming.c.CConventions;
 import com.doublegsoft.jcommons.programming.go.GoConventions;
+import com.doublegsoft.jcommons.programming.java.JavaConventions;
 import com.doublegsoft.jcommons.programming.objc.ObjcConventions;
 import com.doublegsoft.jcommons.programming.rust.RustConventions;
 import com.doublegsoft.jcommons.utils.Inflector;
@@ -22,11 +23,14 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import io.doublegsoft.guidbase.GuidbaseMiniContext;
 import io.doublegsoft.modelbase.Modelbase;
+import io.doublegsoft.tatabase.Tatabase;
 import io.doublegsoft.typebase.Typebase;
 import io.doublegsoft.usebase.Usebase;
 
 //import io.doublegsoft.usebase.aggregate.AggregateBuilder;
 //import io.doublegsoft.usebase.association.AssociationBuilder;
+import io.doublegsoft.usebase.ir.AggregateBuilder;
+import io.doublegsoft.usebase.ir.AssociationBuilder;
 import io.doublegsoft.usebase.modelbase.ModelbaseWriter;
 import io.doublegsoft.usebase.projection.ProjectionBuilder;
 import org.apache.commons.cli.CommandLine;
@@ -241,9 +245,10 @@ public class UsebasePlugin extends FileSystemTemplateBasedPlugin {
     }
 
     globalVars.set("typebase", new Typebase());
-//    globalVars.set("tatabase", new Tatabase());
+    globalVars.set("tatabase", new Tatabase());
     globalVars.set("guidbase_mini", new GuidbaseMiniContext());
     globalVars.set("c", new CConventions());
+    globalVars.set("java", new JavaConventions());
     globalVars.set("rust", new RustConventions());
     globalVars.set("go", new GoConventions());
     globalVars.set("objc", new ObjcConventions());
@@ -276,7 +281,6 @@ public class UsebasePlugin extends FileSystemTemplateBasedPlugin {
       }
     }
     ModelDefinition usebaseDataModel = modelbase.parse(sw.toString());
-
     globalVars.set("usecases", usecases);
 
     for (ObjectDefinition obj : dataModel.getObjects()) {
@@ -299,6 +303,10 @@ public class UsebasePlugin extends FileSystemTemplateBasedPlugin {
     }
     app.setName(applicationName);
     app.setModel(dataModel);
+    globalVars.put("app", app);
+    globalVars.put("aggregateBuilder", new AggregateBuilder(dataModel));
+    globalVars.put("projectionBuilder", new ProjectionBuilder(dataModel));
+    globalVars.put("associationBuilder", new AssociationBuilder(dataModel));
 
     String namingClass = globalVars.get("naming");
     if (namingClass != null) {

@@ -119,6 +119,11 @@
       <version>7.0</version>
     </dependency>
     <dependency>
+      <groupId>io.doublegsoft.tatabase</groupId>
+      <artifactId>tatabase</artifactId>
+      <version>7.0</version>
+    </dependency>
+    <dependency>
       <groupId>com.doublegsoft.jcommons</groupId>
       <artifactId>jcommons-metamodel</artifactId>
       <version>7.0</version>
